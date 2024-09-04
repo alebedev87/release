@@ -80,6 +80,13 @@ echo "=> build registry: ${CI_BUILD_REGISTRY}"
 cat /tmp/albo-rosa-pull-secret.json | python3 -c 'import json,sys;j=json.load(sys.stdin);a=j["auths"];a["'${CI_BUILD_REGISTRY}'"]={"auth":"'${CI_BUILD_REGISTRY_AUTH}'"};j["auths"]=a;print(json.dumps(j))' > /tmp/albo-rosa-pull-secret-with-ci.json
 oc -n openshift-config set data secret pull-secret --from-file=.dockerconfigjson=/tmp/albo-rosa-pull-secret-with-ci.json
 
+# Set up the CI pull secret for the install step which is configured to run after `pre-install-rosa`.
+# The install step uses `operator-sdk run bundle` which in turn will use set this pull secret explicitly.
+# The pull secret has to be associated with the default service account from the target namespace (`run bundle` default sa).
+echo "=> setting up ci pull secret in operator namespace"
+oc -n aws-load-balancer-operator create secret docker-registry ci-pull-secret --from-file=.dockerconfigjson=/tmp/albo-rosa-pull-secret-with-ci.json
+oc -n aws-load-balancer-operator patch serviceaccount default --type='json' -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "ci-pull-secret"}}]'
+
 echo "=> ensuring e2e wafv2 web acl"
 aws wafv2 create-web-acl --name "${E2E_WAFV2_WEB_ACL_NAME}" --scope REGIONAL --default-action '{"Block":{}}'  --visibility-config '{"MetricName":"echoserver","CloudWatchMetricsEnabled": false,"SampledRequestsEnabled":false}' || true
 aws wafv2 list-web-acls --scope REGIONAL --output json | grep "webacl/${E2E_WAFV2_WEB_ACL_NAME}" | cut -d: -f2- | tr -d \",' ' > ${E2E_INPUT_DIR}/${E2E_INPUT_WAFV2_WEBACL}
