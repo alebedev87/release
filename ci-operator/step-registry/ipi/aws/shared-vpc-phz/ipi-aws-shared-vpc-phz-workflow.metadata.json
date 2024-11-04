@@ -1,0 +1,8 @@
+{
+	"path": "ipi/aws/shared-vpc-phz/ipi-aws-shared-vpc-phz-workflow.yaml",
+	"owners": {
+		"approvers": [
+			"alebedev87"
+		]
+	}
+}
