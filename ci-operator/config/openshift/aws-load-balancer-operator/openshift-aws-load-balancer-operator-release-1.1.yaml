@@ -59,7 +59,7 @@ tests:
       cli: latest
       commands: |
         oc create ns aws-load-balancer-operator
-        operator-sdk run bundle --timeout=10m -n aws-load-balancer-operator --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
+        operator-sdk run bundle -n aws-load-balancer-operator --timeout=10m --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
         oc -n aws-load-balancer-operator wait --for condition=Available deployment/aws-load-balancer-operator-controller-manager
       dependencies:
       - env: OO_BUNDLE
@@ -119,7 +119,7 @@ tests:
       cli: latest
       commands: |
         oc create ns aws-load-balancer-operator
-        operator-sdk run bundle --timeout=10m -n aws-load-balancer-operator --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
+        operator-sdk run bundle -n aws-load-balancer-operator --timeout=10m --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
         oc -n aws-load-balancer-operator wait --for condition=Available deployment/aws-load-balancer-operator-controller-manager
       dependencies:
       - env: OO_BUNDLE

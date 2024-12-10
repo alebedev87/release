@@ -58,8 +58,9 @@ tests:
     - as: install
       cli: latest
       commands: |
+        env
         oc create ns aws-load-balancer-operator
-        operator-sdk run bundle --timeout=10m -n aws-load-balancer-operator --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
+        operator-sdk run bundle -n aws-load-balancer-operator --timeout=10m --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
         oc -n aws-load-balancer-operator wait --for condition=Available deployment/aws-load-balancer-operator-controller-manager
       dependencies:
       - env: OO_BUNDLE
@@ -86,6 +87,9 @@ tests:
     - as: install
       cli: latest
       commands: |
+        env
+        ls -ltr ${SHARED_DIR}/albo-rosa-pull-secret-with-ci.json
+        export REGISTRY_AUTH_FILE=${SHARED_DIR}/albo-rosa-pull-secret-with-ci.json
         operator-sdk run bundle -n aws-load-balancer-operator --pull-secret-name=ci-pull-secret --timeout=10m --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
         oc -n aws-load-balancer-operator set env deployment/aws-load-balancer-operator-controller-manager ROLEARN=$(cat ${SHARED_DIR}/operator-role-arn)
         oc -n aws-load-balancer-operator wait --for condition=Available deployment/aws-load-balancer-operator-controller-manager
@@ -119,7 +123,7 @@ tests:
       cli: latest
       commands: |
         oc create ns aws-load-balancer-operator
-        operator-sdk run bundle --timeout=10m -n aws-load-balancer-operator --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
+        operator-sdk run bundle -n aws-load-balancer-operator --timeout=10m --security-context-config restricted --install-mode AllNamespaces "$OO_BUNDLE"
         oc -n aws-load-balancer-operator wait --for condition=Available deployment/aws-load-balancer-operator-controller-manager
       dependencies:
       - env: OO_BUNDLE
